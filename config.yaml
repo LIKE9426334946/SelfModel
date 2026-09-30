@@ -1,0 +1,45 @@
+model:
+  name: model_01
+
+dataset: kvasir-seg
+
+output_root: ./outputs
+
+training:
+  epochs: 60
+  learning_rate: 0.001
+  seed: 23
+
+datasets:
+  kvasir-seg:
+    root: ./data/kvasir-seg
+    images: images
+    masks: masks
+    mode: binary
+    in_channels: 3
+    num_classes: 2 # 背景、息肉
+    image_size: [256, 256]
+    batch_size: 16
+    num_workers: 0
+    split_ratio: [0.8, 0.1, 0.1]
+    threshold: 0.5
+    metrics:
+      reduction: micro-imagewise
+      include_background: false
+      zero_division: 0
+
+  acdc:
+    root: ./data/acdc
+    train_dir: training
+    test_dir: testing
+    mode: multiclass
+    in_channels: 1
+    num_classes: 4
+    image_size: [256, 256]
+    batch_size: 16
+    num_workers: 0
+    val_ratio: 0.2
+    metrics:
+      reduction: macro
+      include_background: false
+      zero_division: 0

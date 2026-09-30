@@ -1,0 +1,10 @@
+__pycache__/
+
+/venv/
+/demo/
+/outputs/
+/data/
+/onnx/
+/.vscode/
+/runs
+/test_outputs

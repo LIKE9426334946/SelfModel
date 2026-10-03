@@ -4,6 +4,7 @@ from pathlib import Path
 import yaml
 
 
+# 加载config文件内容
 def load_config():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="./config.yaml", help="配置文件路径")

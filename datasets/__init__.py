@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import random_split
 
 
+# 根据数据集名称和标签返回对应的数据集
 def build_dataset(config, split):
     dataset_name = config["dataset"]
     data_config = config["datasets"][dataset_name]

@@ -1,34 +1,54 @@
-# description
-# 使用SMP库提供的UNet网络结构，编码器为ResNet18，无预训练参数
-#
+"""
+简单的图像分割网络
+在encoder中增加了激活函数，
+"""
 
 import torch
 import torch.nn as nn
-import segmentation_models_pytorch as smp
 
 
 class Model02(nn.Module):
-    def __init__(self, out_channels=1, in_channels=3):
+    def __init__(self, in_channels=3, out_channels=1):
         super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(
+                in_channels, 64, kernel_size=3, stride=2, padding=1
+            ),  # 4x64x128x128
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),  # 4x128x64x64
+            nn.ReLU(),
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),  # 4x256x32x32
+            nn.ReLU(),
+            nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=1),  # 4x512x16x16
+            nn.ReLU(),
+            nn.MaxPool2d((2, 2), stride=2),  # 4x512x8x8
+        )
 
-        self.unet = smp.Unet(
-            encoder_name="resnet18",
-            encoder_weights=None,
-            in_channels=in_channels,
-            classes=out_channels,
-            activation=None,
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(512, 256, kernel_size=(2, 2), stride=2),  # 4x256x16x16
+            nn.ConvTranspose2d(256, 128, kernel_size=(2, 2), stride=2),  # 4x128x32x32
+            nn.ConvTranspose2d(128, 64, kernel_size=(2, 2), stride=2),  # 4x64x64x64
+            nn.ConvTranspose2d(64, 32, kernel_size=(2, 2), stride=2),  # 4x32x128x128
+            nn.ConvTranspose2d(
+                32, out_channels, kernel_size=(2, 2), stride=2
+            ),  # 4x1x256x256
         )
 
     def forward(self, x):
-        return self.unet(x)
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
 
 
 if __name__ == "__main__":
-    model = Model02(out_channels=1)
-    model.eval()
-
+    model = Model02().eval()
     x = torch.randn(4, 3, 256, 256)
     model(x)
     torch.onnx.export(
-        model, x, "onnx/model02.onnx", input_names=["x"], output_names=["output"]
+        model,
+        x,
+        "onnx/model02.onnx",
+        input_names=["input"],
+        output_names=["output"],
+        dynamo=True,
     )

@@ -17,6 +17,7 @@ MODEL_REGISTRY = {
 }
 
 
+# 返回对应的模型类
 def build_model(model_config, data_config):
     model_name = model_config["name"]
     model_class = MODEL_REGISTRY[model_name]
@@ -26,8 +27,5 @@ def build_model(model_config, data_config):
             1 if data_config["mode"] == "binary" else data_config["num_classes"]
         ),
     }
-
-    if model_name == "model_03":
-        kwargs["image_size"] = tuple(data_config["image_size"])
 
     return model_class(**kwargs)

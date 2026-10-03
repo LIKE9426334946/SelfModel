@@ -1,4 +1,5 @@
-# ModelTrial
+# SelfModel
+主要是我自己写的模型，逐步增加模块
 
 
 # 注意事项
